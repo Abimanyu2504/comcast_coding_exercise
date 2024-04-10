@@ -49,3 +49,20 @@ def stringinate():
         })
     else:
         return jsonify({"error": "Please provide an 'input' string."}), 400
+@app.route('/stats')
+def string_stats():
+    if not seen_strings:
+        return jsonify({"message": "No strings recorded yet."}), 200
+    
+    # Calculate the most popular string (highest count in seen_strings)
+    most_popular_string = max(seen_strings, key=seen_strings.get)
+    
+    # Calculate the longest input string
+    longest_input_received = max(seen_strings, key=len)
+
+    return jsonify({
+        "total_strings": sum(seen_strings.values()),
+        "most_popular_string": most_popular_string,
+        "longest_input_received": longest_input_received,
+        "inputs": seen_strings
+    })
