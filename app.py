@@ -1,42 +1,25 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request, jsonify
+import string
 
 app = Flask(__name__)
 
 seen_strings = {}
 
-@app.route('/')
-def root():
-    return '''
-    <pre>
-    Welcome to the Stringinator 3000 for all of your string manipulation needs.
-
-    GET / - You're already here!
-    POST /stringinate - Get all of the info you've ever wanted about a string. Takes JSON of the following form: {"input":"your-string-goes-here"}
-    GET /stats - Get statistics about all strings the server has seen, including the longest and most popular strings.
-    </pre>
-    '''.strip()
-
-@app.route('/stringinate', methods=['GET','POST'])
-def stringinate():
-    input = ''
-    if request.method == 'POST':
-        input = request.json['input']
+def get_most_frequent_character(input_string):
+    # Remove whitespace and punctuation from the input string
+    clean_string = ''.join(char for char in input_string if char not in string.punctuation and not char.isspace())
+    
+    # Create a dictionary to count occurrences of each character
+    char_count = {}
+    for char in clean_string:
+        if char in char_count:
+            char_count[char] += 1
+        else:
+            char_count[char] = 1
+    
+    # Find the character with the maximum occurrence
+    if char_count:
+        most_frequent_char = max(char_count, key=char_count.get)
+        return most_frequent_char, char_count[most_frequent_char]
     else:
-        input = request.args.get('input', '')
-
-    if input in seen_strings:
-        seen_strings[input] += 1
-    else:
-        seen_strings[input] = 1
-
-    return {
-        "input": input,
-        "length": len(input),
-    }
-
-@app.route('/stats')
-def string_stats():
-    return {
-        "inputs": seen_strings,
-    }
+        return None, 0
