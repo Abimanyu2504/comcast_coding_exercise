@@ -23,3 +23,29 @@ def get_most_frequent_character(input_string):
         return most_frequent_char, char_count[most_frequent_char]
     else:
         return None, 0
+
+@app.route('/stringinate', methods=['GET', 'POST'])
+def stringinate():
+    if request.method == 'POST':
+        input_string = request.json.get('input', '')
+    else:
+        input_string = request.args.get('input', '')
+
+    if input_string:
+        # Update the dictionary with the input string count
+        if input_string in seen_strings:
+            seen_strings[input_string] += 1
+        else:
+            seen_strings[input_string] = 1
+
+        # Calculate the most frequent character and its count
+        most_frequent_char, frequency = get_most_frequent_character(input_string)
+
+        return jsonify({
+            "input": input_string,
+            "length": len(input_string),
+            "most_frequent_character": most_frequent_char,
+            "frequency": frequency
+        })
+    else:
+        return jsonify({"error": "Please provide an 'input' string."}), 400
